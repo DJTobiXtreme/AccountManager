@@ -6,6 +6,7 @@ const app = express();
 
 const db = monk('localhost/clientDb');
 const clientData = db.get('clientData');
+const salesData = db.get('salesData');
 
 app.use(cors());
 app.use(express.json());
@@ -69,9 +70,62 @@ function isValidSale(data){
     console.log('sdfsdf');
 }
 
+app.post('/getMonthSales', (req, res) => {
+    console.log(req.body);
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const clientId = req.body.clientId;
+
+    salesData
+        .findOne({year: year, month: month})
+        .then(clientSales => {
+            auxArray = [];
+            clientSales.salesArray.forEach( function(sale) {
+                if (sale.clientId==clientId) auxArray.push(sale); 
+            });
+            console.log(auxArray);
+            res.json(auxArray);
+        });
+});
+
 app.post('/monthSales', (req, res) => {
     if(isValidSale(req.body)){
         console.log(req.body);
+
+        const date = new Date(req.body.date);
+        const year = date.getFullYear();
+        var month = date.getMonth();
+        const cost = req.body.cost;
+        const clientId = req.body.clientId;
+
+        const sale = {
+            cost: cost,
+            date: date,
+            clientId: clientId
+        };
+        console.log(sale);
+
+        salesData
+            .findOne({year: year, month: month})
+            .then((period) => {
+                if(period===null) {
+                    const newPeriod = {
+                        year: year,
+                        month: month,
+                        salesArray: [sale]
+                    }
+                    salesData.insert(newPeriod)
+                        .then((createdNewPeriod) => {
+                            console.log(createdNewPeriod);
+                        });
+                } else {
+                    salesData.update({year: year, month: month}, {$push: {salesArray: sale}})
+                        .then((updatedPeriod) => {
+                            console.log(updatedPeriod);
+                        });
+                    }
+            });
 
         res.json(req.body);
     } 
