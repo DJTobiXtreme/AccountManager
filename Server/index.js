@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 
 app.get('/allClients', (req, res) => {
     clientData
-        .find()
+        .find({},{limit: 5, sort: {name: 1}})
         .then(allClients => {
             res.json(allClients);
         })
@@ -62,6 +62,16 @@ app.post('/allClients', (req, res) => {
         });
     }
 });
+
+app.post('/filteredClients', (req, res) => {
+    const inputText = req.body.inputText.toString();
+    console.log(inputText);
+    clientData
+        .find({"name": {$regex: inputText, $options: 'i'}}, {limit: 5, sort: {name: 1}})
+        .then(allClients => {
+            res.json(allClients);
+        })
+})
 
 // sale.html
 

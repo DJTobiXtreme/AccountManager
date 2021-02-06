@@ -1,6 +1,8 @@
 const form = document.querySelector('form');
 const API_URL = 'http://localhost:5000/allClients';
+const filtered_API_URL = 'http://localhost:5000/filteredClients';
 const clientsElement = document.querySelector('.clientsList');
+const searchBox = document.getElementById('nameToSearch');
 
 listAllClients();
 
@@ -29,17 +31,6 @@ form.addEventListener('submit',(event) => {
             console.log(createdClient);
         });
 });
-/*
-document.getElementById('btnSearchClient').addEventListener('click',(event)=>{
-    document.getElementById('clientsTable').style.display = 'none';
-});
-
-/*
-document.getElementById('btnSelectClient').addEventListener('click',(event)=>{
-    console.log('works');
-});
-*/
-
 
 function listAllClients(){
     fetch(API_URL)
@@ -48,7 +39,7 @@ function listAllClients(){
             console.log(clients);
             clients.forEach(client => {
                 const table = document.getElementById('clientsTable').getElementsByTagName('tbody')[0];
-                const row = table.insertRow(0);
+                const row = table.insertRow(-1);
                 const nameCell = row.insertCell(0);
                 const phoneCell = row.insertCell(1);
                 const adressCell = row.insertCell(2);
@@ -66,3 +57,41 @@ function clientSelected(clientId){
     sessionStorage.setItem('idClicked',clientId);
     window.location.href = "sale.html";
 }
+
+searchBox.addEventListener('change', (event) => {
+    const oldTable = document.getElementById('clientsTable').getElementsByTagName('tbody')[0];
+    const newTable = document.createElement('tbody');
+
+    const inputText = document.getElementById('nameToSearch').value;
+    const inputClass = {
+        inputText: inputText,
+    };
+
+    fetch(filtered_API_URL, {
+        method: 'POST',
+        body: JSON.stringify(inputClass),
+        headers: {
+            'content-type': 'application/json'
+        }
+    })
+        .then(response => response.json())
+        .then(clients => {
+            console.log(clients);
+            clients.forEach(client => {
+                const row = newTable.insertRow(-1);
+                const nameCell = row.insertCell(0);
+                const phoneCell = row.insertCell(1);
+                const adressCell = row.insertCell(2);
+
+                nameCell.innerHTML = client.name;
+                phoneCell.innerHTML = client.phone;
+                adressCell.innerHTML = client.adress;
+
+                console.log(row);
+
+                row.onclick = function(){ clientSelected(client._id);}
+            });
+        });
+    oldTable.parentNode.replaceChild(newTable, oldTable);
+
+});
