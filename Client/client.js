@@ -30,6 +30,8 @@ form.addEventListener('submit',(event) => {
         .then(createdClient => {
             console.log(createdClient);
         });
+    
+    location.reload();
 });
 
 function listAllClients(){
@@ -93,5 +95,4 @@ searchBox.addEventListener('change', (event) => {
             });
         });
     oldTable.parentNode.replaceChild(newTable, oldTable);
-
 });

@@ -28,10 +28,12 @@ addSale.addEventListener('click',(event) => {
         .then(createdSale => {
             console.log(createdSale);
         });
+    
+    location.reload();
 });
 
 function listClientSales(){
-
+    let actualBalance = 0;
     const clientAux = {
         clientId: clientId
     }
@@ -55,7 +57,9 @@ function listClientSales(){
 
                 dateCell.innerHTML = saleToDisplay;
                 costCell.innerHTML = sale.cost;
+
+                actualBalance += parseFloat(sale.cost);
             });
-            console.log(sales);
+            document.getElementById('actualBalance').innerHTML = 'Saldo actual: '.concat(actualBalance);
         });
 }
