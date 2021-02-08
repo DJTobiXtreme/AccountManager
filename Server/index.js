@@ -8,6 +8,10 @@ const db = monk('localhost/clientDb');
 const clientData = db.get('clientData');
 const salesData = db.get('salesData');
 
+clientData.createIndex('name', function(err,result) {
+    console.log(result);
+});
+
 app.use(cors());
 app.use(express.json());
 
@@ -77,23 +81,26 @@ app.post('/filteredClients', (req, res) => {
 
 function isValidSale(data){
     return true;
-    console.log('sdfsdf');
 }
 
 app.post('/getMonthSales', (req, res) => {
-    console.log(req.body);
-    const date = new Date();
+    const date = new Date(`${req.body.year}/${req.body.month}`);
+    console.log(date);
     const year = date.getFullYear();
     const month = date.getMonth();
     const clientId = req.body.clientId;
+
+    console.log(month,year,req.body.month, req.body.year);
 
     salesData
         .findOne({year: year, month: month})
         .then(clientSales => {
             auxArray = [];
-            clientSales.salesArray.forEach( function(sale) {
-                if (sale.clientId==clientId) auxArray.push(sale); 
-            });
+            if(clientSales!==null){
+                clientSales.salesArray.forEach( function(sale) {
+                    if (sale.clientId==clientId) auxArray.push(sale); 
+                });
+            }
             console.log(auxArray);
             res.json(auxArray);
         });
@@ -101,7 +108,6 @@ app.post('/getMonthSales', (req, res) => {
 
 app.post('/monthSales', (req, res) => {
     if(isValidSale(req.body)){
-        console.log(req.body);
 
         const date = new Date(req.body.date);
         const year = date.getFullYear();
@@ -111,13 +117,13 @@ app.post('/monthSales', (req, res) => {
 
         const sale = {
             cost: cost,
-            date: date,
+            date: new Date(),
             clientId: clientId
         };
         console.log(sale);
 
         salesData
-            .findOne({year: year, month: month})
+            .findOne({month: month, year: year})
             .then((period) => {
                 if(period===null) {
                     const newPeriod = {

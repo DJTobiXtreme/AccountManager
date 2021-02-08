@@ -7,15 +7,15 @@
 </head>
 <body>
     <h1>Cuentas Negocio</h1>
-    <div class="row">
-        <div class="ten column"><label for="nextMonthCheckbox">Para el mes siguiente</label></div>
-        <div class="one column"><input type="checkbox" class=".simple-checkbox" id="nextMonthCheckbox" name="nextMonthCheckbox" title="Para mes siguiente:"></div>
-    </div>
-    <input type="number" id="saleCost" name="saleCost">
-    
-    
-    </form>
-    <button class="button-primary" id="addSale" name="addSale">Añadir Venta</button>
+    <table>
+        <tr>
+            <th><input type="number" id="saleCost" name="saleCost"></th>
+            <th><button class="button-primary" id="addSale" name="addSale">Añadir Venta</button></th>
+            <th><h5>Para el mes siguiente:</h5></th>
+            <th><input type="checkbox" id="nextMonthCheckbox"></th>
+        </tr>
+    </table>
+    <input type="month" id="selectedMonth" name="selectedMonth" min="2021-02">
     <h4 id="actualBalance">test</h4>
     <table id='salesTable'>
         <thead>
