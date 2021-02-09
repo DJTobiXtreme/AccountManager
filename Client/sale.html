@@ -14,9 +14,15 @@
             <th><h5>Para el mes siguiente:</h5></th>
             <th><input type="checkbox" id="nextMonthCheckbox"></th>
         </tr>
+        <tr>
+            <th><h5>Porcentaje al cierre mes:</h5></th>
+            <th><input type="number" id="closeMonthPercentage" value="0" placeholder="Porcentaje"></th>
+            <th><button class="button-primary" id="closeMonth">Cerrar mes</button></th>
+        </tr>
     </table>
     <input type="month" id="selectedMonth" name="selectedMonth" min="2021-02">
-    <h4 id="actualBalance">test</h4>
+    <h4 id="actualBalance">Saldo mes actual: error(no calculado)</h4>
+    <h4 id="lastMonthBalance">Saldo mes anterior: error(no calculado)</h4>
     <table id='salesTable'>
         <thead>
             <tr>

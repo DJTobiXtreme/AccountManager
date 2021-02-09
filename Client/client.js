@@ -14,24 +14,28 @@ form.addEventListener('submit',(event) => {
     const phone = formData.get('newPhone');
     const adress = formData.get('newAdress');
 
-    const client = {
-        name,
-        phone,
-        adress
-    };
+    if (name==="" || phone==="" || adress===""){
+        alert("Ningun campo puede estar vacio");
+    } else {
+        const client = {
+            name,
+            phone,
+            adress
+        };
 
-    fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(client),
-        headers: {
-            'content-type': 'application/json'
-        }
-    }).then(response => response.json())
-        .then(createdClient => {
-            console.log(createdClient);
-        });
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify(client),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }).then(response => response.json())
+            .then(createdClient => {
+                console.log(createdClient);
+            });
     
-    location.reload();
+        location.reload();
+    }
 });
 
 function listAllClients(){

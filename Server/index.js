@@ -111,7 +111,7 @@ app.post('/monthSales', (req, res) => {
 
         const date = new Date(req.body.date);
         const year = date.getFullYear();
-        var month = date.getMonth();
+        const month = date.getMonth();
         const cost = req.body.cost;
         const clientId = req.body.clientId;
 
@@ -120,7 +120,6 @@ app.post('/monthSales', (req, res) => {
             date: new Date(),
             clientId: clientId
         };
-        console.log(sale);
 
         salesData
             .findOne({month: month, year: year})
