@@ -10,12 +10,9 @@
     <form>  
         <table>
             <tr>
-                <th><label>Nombre:</label></th>
-                <th><input type="text" id="newName" name="newName" /></th>
-                <th><label>Telefono:</label></th>
-                <th><input type="text" id="newPhone" name="newPhone"></th>
-                <th><label>Direccion:</label></th>
-                <th><input type="text" id="newAdress" name="newAdress"></th>
+                <th><input type="text" id="newName" name="newName" placeholder="Nombre cliente"></th>
+                <th><input type="text" id="newPhone" name="newPhone" placeholder="Telefono"></th>
+                <th><input type="text" id="newAdress" name="newAdress" placeholder="Direccion"></th>
                 <th><button class="button-primary">Agregar Cliente</button></th>
             </tr>
             <tr>
@@ -23,7 +20,7 @@
             </tr>
         </table>
     </form>
-    <input type="text" id="nameToSearch" name="nameToSearch">
+    <input type="text" id="nameToSearch" name="nameToSearch" placeholder="Buscar Cliente">
     <br>
     <table id='clientsTable'>
         <thead>
@@ -31,6 +28,7 @@
                 <th>Nombre</th>
                 <th>Telefono</th>
                 <th>Direccion</th>
+                <th>Cierre mes</th>
             </tr>
         </thead>
         <tbody></tbody>

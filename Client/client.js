@@ -49,18 +49,23 @@ function listAllClients(){
                 const nameCell = row.insertCell(0);
                 const phoneCell = row.insertCell(1);
                 const adressCell = row.insertCell(2);
+                const lastMonthCell = row.insertCell(3);
 
                 nameCell.innerHTML = client.name;
                 phoneCell.innerHTML = client.phone;
                 adressCell.innerHTML = client.adress;
+                lastMonthCell.innerHTML = client.lastMonthClosed;
 
-                row.onclick = function(){ clientSelected(client._id);}
+                console.log(client.lastMonthClosed);
+
+                row.onclick = function(){ clientSelected(client._id, client.lastMonthClosed);}
             });
         });
 }
 
-function clientSelected(clientId){
+function clientSelected(clientId, lastMonthClosed){
     sessionStorage.setItem('idClicked',clientId);
+    sessionStorage.setItem('lastMonthClicked',lastMonthClosed);
     window.location.href = "sale.html";
 }
 
@@ -88,14 +93,16 @@ searchBox.addEventListener('change', (event) => {
                 const nameCell = row.insertCell(0);
                 const phoneCell = row.insertCell(1);
                 const adressCell = row.insertCell(2);
+                const lastMonthCell = row.insertCell(3);
 
                 nameCell.innerHTML = client.name;
                 phoneCell.innerHTML = client.phone;
                 adressCell.innerHTML = client.adress;
+                lastMonthCell.innerHTML = client.lastMonthClosed;
 
                 console.log(row);
 
-                row.onclick = function(){ clientSelected(client._id);}
+                row.onclick = function(){ clientSelected(client._id, client.lastMonthClosed);}
             });
         });
     oldTable.parentNode.replaceChild(newTable, oldTable);

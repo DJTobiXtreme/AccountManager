@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 
 app.get('/allClients', (req, res) => {
     clientData
-        .find({},{limit: 5, sort: {name: 1}})
+        .find({},{limit: 20, sort: {lastMonthClosed: 1}})
         .then(allClients => {
             res.json(allClients);
         })
@@ -46,10 +46,22 @@ function isValidClient(data){
 app.post('/allClients', (req, res) => {
     if (isValidClient(req.body)){
 
+    const date = new Date();
+    let year = date.getFullYear();
+    let month = ("0" + (date.getMonth()-1)).slice(-2);
+    if (month==='00') {
+        month = '12';
+        year = (parseInt(year, 10)-1).toString();
+    }
+    console.log(month, date.getMonth());
+    const monthYear = year+month;
+        
+
         const client = {
             name: req.body.name.toString(),
             phone: req.body.phone.toString(),
             adress: req.body.adress.toString(),
+            lastMonthClosed: monthYear
         };
 
         console.log(client);
@@ -71,7 +83,7 @@ app.post('/filteredClients', (req, res) => {
     const inputText = req.body.inputText.toString();
     console.log(inputText);
     clientData
-        .find({"name": {$regex: inputText, $options: 'i'}}, {limit: 5, sort: {name: 1}})
+        .find({"name": {$regex: inputText, $options: 'i'}}, {limit: 20, sort: {name: 1}})
         .then(allClients => {
             res.json(allClients);
         })
@@ -85,12 +97,10 @@ function isValidSale(data){
 
 app.post('/getMonthSales', (req, res) => {
     const date = new Date(`${req.body.year}/${req.body.month}`);
-    console.log(date);
     const year = date.getFullYear();
     const month = date.getMonth();
     const clientId = req.body.clientId;
 
-    console.log(month,year,req.body.month, req.body.year);
 
     salesData
         .findOne({year: year, month: month})
@@ -101,7 +111,6 @@ app.post('/getMonthSales', (req, res) => {
                     if (sale.clientId==clientId) auxArray.push(sale); 
                 });
             }
-            console.log(auxArray);
             res.json(auxArray);
         });
 });
@@ -145,3 +154,13 @@ app.post('/monthSales', (req, res) => {
         res.json(req.body);
     } 
 });
+
+app.post('/updateLastMonth', (req,res) => {
+    const clientId = req.body.clientId.toString();
+    const lastMonthClosed = req.body.lastMonthClosed.toString();
+    clientData
+        .findOneAndUpdate({"_id": clientId}, {$set: {lastMonthClosed: lastMonthClosed}})
+        .then((updatedClient) => {
+            console.log(updatedClient);
+        })
+})
