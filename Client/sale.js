@@ -3,12 +3,14 @@ const lastMonthClosed = sessionStorage.getItem('lastMonthClicked');
 API_URL = 'http://localhost:5000/monthSales';
 get_API_URL = 'http://localhost:5000/getMonthSales';
 update_lastMonth_API_URL = 'http://localhost:5000/updateLastMonth';
+delete_sale_API_URL = 'http://localhost:5000/deleteSale'
 const addSale = document.getElementById('addSale');
 const selectedMonth = document.getElementById('selectedMonth');
 const closeMonth = document.getElementById('closeMonth');
 const closeMonthPercentage = document.getElementById('closeMonthPercentage');
 var auxActualBalance;
 
+setClientData();
 setCurrentMonthInputMonth();
 listClientSales();
 
@@ -101,12 +103,17 @@ function listClientSales(){
                 const row = newTable.insertRow(0);
                 const dateCell = row.insertCell(0);
                 const costCell = row.insertCell(1);
+                const deleteCell = row.insertCell(2);
 
                 const date = new Date(sale.date);
                 const saleToDisplay = ''.concat(date.getDate(),'/',date.getMonth()+1,'/',date.getFullYear());
 
                 dateCell.innerHTML = saleToDisplay;
                 costCell.innerHTML = sale.cost;
+                // deleteCell.innerHTML = `<button>Borrar</button>`; 
+                deleteCell.style.backgroundColor = "red";
+                
+                deleteCell.onclick =  function() { eraseSale(sale.date);};
 
                 actualBalance += parseFloat(sale.cost);
             });
@@ -114,6 +121,35 @@ function listClientSales(){
             auxActualBalance = actualBalance;
         });
         oldTable.parentNode.replaceChild(newTable, oldTable);
+}
+
+function eraseSale(saleDate){
+    console.log("a",saleDate);
+    let date = new Date();
+    const year = selectedMonth.value.substr(0,4);
+    date.setFullYear(year);
+    const month = selectedMonth.value.substr(5,2)-1;
+    date.setMonth(month);
+    requestObject = {
+        periodDate: date,
+        saleDate: saleDate
+    }
+    if(confirm('Seguro que quieres eliminar la venta')){
+        console.log("si");
+        fetch(delete_sale_API_URL, {
+            method: 'POST',
+            body: JSON.stringify(requestObject),
+            headers: {
+                'content-type': 'application/json'
+            }
+        }).then(response => response.json())
+            .then((deletedSale) => {
+                console.log(deletedSale);
+            });
+        location.reload();
+    } else{
+        console.log("no");
+    }
 }
 
 function isValidCloseMonth(monthYear){
@@ -197,4 +233,13 @@ function setLastMonthBalance(month, year){
             });
             document.getElementById('lastMonthBalance').innerHTML = 'Saldo mes anterior: '.concat(lastMonthSum);
         });
+}
+
+function setClientData(){
+    const clientName = sessionStorage.getItem('nameClicked');
+    const clientAdress = sessionStorage.getItem('adressClicked');
+    const clientPhone = sessionStorage.getItem('phoneClicked');
+    document.getElementById('clientName').innerHTML = clientName;
+    document.getElementById('clientPhone').innerHTML = clientPhone;
+    document.getElementById('clientAdress').innerHTML = clientAdress;
 }

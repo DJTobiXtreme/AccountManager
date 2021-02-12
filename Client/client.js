@@ -58,14 +58,17 @@ function listAllClients(){
 
                 console.log(client.lastMonthClosed);
 
-                row.onclick = function(){ clientSelected(client._id, client.lastMonthClosed);}
+                row.onclick = function(){ clientSelected(client._id, client.lastMonthClosed, client.name, client.phone, client.adress);}
             });
         });
 }
 
-function clientSelected(clientId, lastMonthClosed){
+function clientSelected(clientId, lastMonthClosed, name, adress, phone){
     sessionStorage.setItem('idClicked',clientId);
     sessionStorage.setItem('lastMonthClicked',lastMonthClosed);
+    sessionStorage.setItem('nameClicked',name);
+    sessionStorage.setItem('adressClicked',adress);
+    sessionStorage.setItem('phoneClicked',phone);
     window.location.href = "sale.html";
 }
 

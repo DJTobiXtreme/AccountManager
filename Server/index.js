@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 
 app.get('/allClients', (req, res) => {
     clientData
-        .find({},{limit: 20, sort: {lastMonthClosed: 1}})
+        .find({},{limit: 20, sort: {lastMonthClosed: 1, name: 1}})
         .then(allClients => {
             res.json(allClients);
         })
@@ -130,6 +130,8 @@ app.post('/monthSales', (req, res) => {
             clientId: clientId
         };
 
+        console.log(sale.date);
+
         salesData
             .findOne({month: month, year: year})
             .then((period) => {
@@ -146,7 +148,7 @@ app.post('/monthSales', (req, res) => {
                 } else {
                     salesData.update({year: year, month: month}, {$push: {salesArray: sale}})
                         .then((updatedPeriod) => {
-                            console.log(updatedPeriod);
+                            // console.log(updatedPeriod);
                         });
                     }
             });
@@ -162,5 +164,19 @@ app.post('/updateLastMonth', (req,res) => {
         .findOneAndUpdate({"_id": clientId}, {$set: {lastMonthClosed: lastMonthClosed}})
         .then((updatedClient) => {
             console.log(updatedClient);
+        })
+})
+
+app.post('/deleteSale', (req, res) => {
+    const dateToFind = new Date(req.body.saleDate);
+    const date = new Date(req.body.periodDate);
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    console.log(dateToFind);
+    salesData
+        .update({"month": month, "year": year}, {$pull: {"salesArray": {"date": dateToFind}}})
+        .then((deletedSales) => {
+            console.log(deletedSales);
+            res.json(deletedSales);
         })
 })
