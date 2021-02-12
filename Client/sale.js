@@ -9,8 +9,9 @@ const selectedMonth = document.getElementById('selectedMonth');
 const closeMonth = document.getElementById('closeMonth');
 const closeMonthPercentage = document.getElementById('closeMonthPercentage');
 var auxActualBalance;
+var lastMonthSum = 0;
+var actualBalance = 0;
 
-setClientData();
 setCurrentMonthInputMonth();
 listClientSales();
 
@@ -68,6 +69,8 @@ closeMonth.addEventListener('click', (event) => {
 
 selectedMonth.addEventListener('change', (event) => {
     console.log("select event triggered");
+    lastMonthSum = 0;
+    actualBalance = 0;
     listClientSales();
 });
 
@@ -79,7 +82,6 @@ function listClientSales(){
     const oldTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
     const newTable = document.createElement('tbody');
 
-    let actualBalance = 0;
     const year = selectedMonth.value.substr(0,4);
     const month = selectedMonth.value.substr(5,2);
 
@@ -110,7 +112,7 @@ function listClientSales(){
 
                 dateCell.innerHTML = saleToDisplay;
                 costCell.innerHTML = sale.cost;
-                // deleteCell.innerHTML = `<button>Borrar</button>`; 
+
                 deleteCell.style.backgroundColor = "red";
                 
                 deleteCell.onclick =  function() { eraseSale(sale.date);};
@@ -119,6 +121,7 @@ function listClientSales(){
             });
             document.getElementById('actualBalance').innerHTML = 'Saldo mes actual: '.concat(actualBalance);
             auxActualBalance = actualBalance;
+            setClientData();
         });
         oldTable.parentNode.replaceChild(newTable, oldTable);
 }
@@ -212,8 +215,6 @@ function sendSaleRequest(cost, date){
 }
 
 function setLastMonthBalance(month, year){
-    lastMonthSum = 0;
-
     newRequestObject = {
         month: month,
         year: year,
@@ -242,4 +243,6 @@ function setClientData(){
     document.getElementById('clientName').innerHTML = clientName;
     document.getElementById('clientPhone').innerHTML = clientPhone;
     document.getElementById('clientAdress').innerHTML = clientAdress;
+    document.getElementById('totalBalance').innerHTML = `Saldo total: ${(lastMonthSum+actualBalance)}`;
+    console.log(lastMonthSum+actualBalance);
 }

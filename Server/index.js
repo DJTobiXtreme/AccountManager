@@ -1,4 +1,4 @@
-const express  = require('express');
+const express = require('express');
 const cors = require('cors');
 const monk = require('monk');
 
@@ -28,14 +28,6 @@ app.get('/', (req, res) => {
         message: 'works'
     });
 });
-
-app.get('/allClients', (req, res) => {
-    clientData
-        .find({},{limit: 20, sort: {lastMonthClosed: 1, name: 1}})
-        .then(allClients => {
-            res.json(allClients);
-        })
-})
 
 function isValidClient(data){
     return data.name && data.name.toString().trim() !== '' &&
@@ -83,9 +75,19 @@ app.post('/filteredClients', (req, res) => {
     const inputText = req.body.inputText.toString();
     console.log(inputText);
     clientData
-        .find({"name": {$regex: inputText, $options: 'i'}}, {limit: 20, sort: {name: 1}})
+        .find({"name": {$regex: inputText, $options: 'i'}}, {limit: 20, sort: {lastMonthClosed: 1, name: 1}})
         .then(allClients => {
             res.json(allClients);
+        })
+})
+
+app.post('/updateLastMonth', (req,res) => {
+    const clientId = req.body.clientId.toString();
+    const lastMonthClosed = req.body.lastMonthClosed.toString();
+    clientData
+        .findOneAndUpdate({"_id": clientId}, {$set: {lastMonthClosed: lastMonthClosed}})
+        .then((updatedClient) => {
+            console.log(updatedClient);
         })
 })
 
@@ -157,16 +159,6 @@ app.post('/monthSales', (req, res) => {
     } 
 });
 
-app.post('/updateLastMonth', (req,res) => {
-    const clientId = req.body.clientId.toString();
-    const lastMonthClosed = req.body.lastMonthClosed.toString();
-    clientData
-        .findOneAndUpdate({"_id": clientId}, {$set: {lastMonthClosed: lastMonthClosed}})
-        .then((updatedClient) => {
-            console.log(updatedClient);
-        })
-})
-
 app.post('/deleteSale', (req, res) => {
     const dateToFind = new Date(req.body.saleDate);
     const date = new Date(req.body.periodDate);
@@ -180,3 +172,39 @@ app.post('/deleteSale', (req, res) => {
             res.json(deletedSales);
         })
 })
+
+app.post('/deleteClient', (req, res) => {
+    const clientId = req.body.clientId;
+    console.log(clientId);
+    clientData
+        .findOneAndDelete({"_id": clientId})
+        .then((deletedClient) =>{
+            console.log(deletedClient);
+        });
+
+    salesData
+        .update({}, {$pull: {"salesArray": {"clientId": clientId}}}, {"multi": true})
+        .then((deletedClientSales) => {
+            console.log(deletedClientSales);
+        });
+});
+
+app.post('/modifyClient', (req, res) => {
+    const clientId = req.body.clientId;
+    const name = req.body.name;
+    const adress = req.body.adress;
+    const phone = req.body.phone;
+    console.log(clientId);
+    if(isValidClient(req.body)){
+        clientData
+            .findOneAndUpdate({"_id": clientId}, {$set: {"name": name, "adress": adress, "phone": phone}})
+            .then((modifiedClient) =>{
+                console.log(modifiedClient);
+            });
+    } else {
+        res.status(422);
+        res.json({
+            message: "No puede haber campos sin completar"
+        });
+    }
+});
