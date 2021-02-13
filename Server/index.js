@@ -12,6 +12,11 @@ clientData.createIndex('name', function(err,result) {
     console.log(result);
 });
 
+salesData.createIndex('salesArray.clientId', function (err,result) {
+    console.log(result);
+    console.log(err);
+})
+
 app.use(cors());
 app.use(express.json());
 
@@ -40,7 +45,7 @@ app.post('/allClients', (req, res) => {
 
     const date = new Date();
     let year = date.getFullYear();
-    let month = ("0" + (date.getMonth()-1)).slice(-2);
+    let month = ("0" + (date.getMonth())).slice(-2);
     if (month==='00') {
         month = '12';
         year = (parseInt(year, 10)-1).toString();
@@ -90,6 +95,42 @@ app.post('/updateLastMonth', (req,res) => {
             console.log(updatedClient);
         })
 })
+
+app.post('/deleteClient', (req, res) => {
+    const clientId = req.body.clientId;
+    console.log(clientId);
+    clientData
+        .findOneAndDelete({"_id": clientId})
+        .then((deletedClient) =>{
+            console.log(deletedClient);
+        });
+
+    salesData
+        .update({}, {$pull: {"salesArray": {"clientId": clientId}}}, {"multi": true})
+        .then((deletedClientSales) => {
+            console.log(deletedClientSales);
+        });
+});
+
+app.post('/modifyClient', (req, res) => {
+    const clientId = req.body.clientId;
+    const name = req.body.name;
+    const adress = req.body.adress;
+    const phone = req.body.phone;
+    console.log(clientId);
+    if(isValidClient(req.body)){
+        clientData
+            .findOneAndUpdate({"_id": clientId}, {$set: {"name": name, "adress": adress, "phone": phone}})
+            .then((modifiedClient) =>{
+                console.log(modifiedClient);
+            });
+    } else {
+        res.status(422);
+        res.json({
+            message: "No puede haber campos sin completar"
+        });
+    }
+});
 
 // sale.html
 
@@ -172,39 +213,3 @@ app.post('/deleteSale', (req, res) => {
             res.json(deletedSales);
         })
 })
-
-app.post('/deleteClient', (req, res) => {
-    const clientId = req.body.clientId;
-    console.log(clientId);
-    clientData
-        .findOneAndDelete({"_id": clientId})
-        .then((deletedClient) =>{
-            console.log(deletedClient);
-        });
-
-    salesData
-        .update({}, {$pull: {"salesArray": {"clientId": clientId}}}, {"multi": true})
-        .then((deletedClientSales) => {
-            console.log(deletedClientSales);
-        });
-});
-
-app.post('/modifyClient', (req, res) => {
-    const clientId = req.body.clientId;
-    const name = req.body.name;
-    const adress = req.body.adress;
-    const phone = req.body.phone;
-    console.log(clientId);
-    if(isValidClient(req.body)){
-        clientData
-            .findOneAndUpdate({"_id": clientId}, {$set: {"name": name, "adress": adress, "phone": phone}})
-            .then((modifiedClient) =>{
-                console.log(modifiedClient);
-            });
-    } else {
-        res.status(422);
-        res.json({
-            message: "No puede haber campos sin completar"
-        });
-    }
-});

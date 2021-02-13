@@ -5,6 +5,7 @@ const delete_client_API_URL = 'http://localhost:5000/deleteClient';
 const modify_client_API_URL = 'http://localhost:5000/modifyClient';
 const clientsElement = document.querySelector('.clientsList');
 const searchBox = document.getElementById('nameToSearch');
+searchBox.focus();
 
 listClients();
 

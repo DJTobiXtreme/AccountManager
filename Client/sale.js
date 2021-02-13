@@ -4,10 +4,13 @@ API_URL = 'http://localhost:5000/monthSales';
 get_API_URL = 'http://localhost:5000/getMonthSales';
 update_lastMonth_API_URL = 'http://localhost:5000/updateLastMonth';
 delete_sale_API_URL = 'http://localhost:5000/deleteSale'
-const addSale = document.getElementById('addSale');
+const btnAddSale = document.getElementById('addSale');
 const selectedMonth = document.getElementById('selectedMonth');
 const closeMonth = document.getElementById('closeMonth');
 const closeMonthPercentage = document.getElementById('closeMonthPercentage');
+const revertCloseMonth = document.getElementById('revertCloseMonth');
+const costInput = document.getElementById('saleCost');
+costInput.focus();
 var auxActualBalance;
 var lastMonthSum = 0;
 var actualBalance = 0;
@@ -15,25 +18,11 @@ var actualBalance = 0;
 setCurrentMonthInputMonth();
 listClientSales();
 
-addSale.addEventListener('click',(event) => {
+//onchange insgresarco sto vneta
+
+btnAddSale.addEventListener('click',(event) => {
     event.preventDefault();
-
-    const cost = document.getElementById('saleCost').value;
-
-    if (cost===""){
-        alert("La venta debe tener un costo");
-    } else {
-        let date = new Date();
-        const year = selectedMonth.value.substr(0,4);
-        date.setFullYear(year);
-        const month = selectedMonth.value.substr(5,2)-1;
-        date.setMonth(month);
-        console.log(date);
-
-        if (document.getElementById('nextMonthCheckbox').checked) date.setMonth(date.getMonth()+1); 
-
-        sendSaleRequest(cost, date);
-    }
+    addSale();
 });
 
 closeMonth.addEventListener('click', (event) => {
@@ -77,6 +66,29 @@ selectedMonth.addEventListener('change', (event) => {
 btnBack.addEventListener('click', (event) => {
     window.location.href = "index.html";
 })
+
+costInput.addEventListener('change', (event) => {
+    addSale();
+})
+
+function addSale(){
+    const cost = costInput.value;
+
+    if (cost===""){
+        alert("La venta debe tener un costo");
+    } else {
+        let date = new Date();
+        const year = selectedMonth.value.substr(0,4);
+        date.setFullYear(year);
+        const month = selectedMonth.value.substr(5,2)-1;
+        date.setMonth(month);
+        console.log(date);
+
+        if (document.getElementById('nextMonthCheckbox').checked) date.setMonth(date.getMonth()+1); 
+
+        sendSaleRequest(cost, date);
+    }
+}
 
 function listClientSales(){
     const oldTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
@@ -137,7 +149,7 @@ function eraseSale(saleDate){
         periodDate: date,
         saleDate: saleDate
     }
-    if(confirm('Seguro que quieres eliminar la venta')){
+    if(confirm('¿Estas seguro que quieres eliminar la venta?')){
         console.log("si");
         fetch(delete_sale_API_URL, {
             method: 'POST',
@@ -240,9 +252,22 @@ function setClientData(){
     const clientName = sessionStorage.getItem('nameClicked');
     const clientAdress = sessionStorage.getItem('adressClicked');
     const clientPhone = sessionStorage.getItem('phoneClicked');
+
     document.getElementById('clientName').innerHTML = clientName;
     document.getElementById('clientPhone').innerHTML = clientPhone;
     document.getElementById('clientAdress').innerHTML = clientAdress;
+    document.getElementById('clientCloseMonth').innerHTML = lastMonthClosed;
     document.getElementById('totalBalance').innerHTML = `Saldo total: ${(lastMonthSum+actualBalance)}`;
     console.log(lastMonthSum+actualBalance);
 }
+
+revertCloseMonth.addEventListener('click', (event) => {
+    const value = prompt("¿Estas seguro que deseas revertir el cambio? El nuevo cierre mes debe ser del formato AAAAMM sin separadores");
+    console.log(value);
+    if(value!==null && value.length===6 && !isNaN(value)){
+        sendUpdateLastMonth(value);
+        sessionStorage.setItem('lastMonthClicked',value);
+        alert("Recuerda eliminar las ventas autogeneradas por el boton cerrar mes.");
+        location.reload();
+    }
+})
